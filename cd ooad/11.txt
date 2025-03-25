@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+char productions[10][10];
+char result[10];
+int numProductions, resultIndex = 0;
+
+void findFirst(char symbol);
+void findFollow(char symbol);
+
+int main() {
+    int i, choice;
+    char symbol;
+
+    printf("Enter number of productions: ");
+    scanf("%d", &numProductions);
+
+    printf("Enter productions (Example: E=E+T):\n");
+    for (i = 0; i < numProductions; i++) {
+        scanf("%s", productions[i]);
+    }
+
+    do {
+        resultIndex = 0;
+        printf("\nFind FIRST & FOLLOW of: ");
+        scanf(" %c", &symbol);
+
+        // FIRST
+        findFirst(symbol);
+        printf("FIRST(%c) = { ", symbol);
+        for (i = 0; i < resultIndex; i++)
+            printf("%c ", result[i]);
+        printf("}\n");
+
+        // FOLLOW
+        resultIndex = 0;
+        findFollow(symbol);
+        printf("FOLLOW(%c) = { ", symbol);
+        for (i = 0; i < resultIndex; i++)
+            printf("%c ", result[i]);
+        printf("}\n");
+
+        printf("\nDo you want to continue? (1 = Yes / 0 = No): ");
+        scanf("%d", &choice);
+    } while (choice == 1);
+
+    return 0;
+}
+
+void addToResult(char c) {
+    for (int i = 0; i < resultIndex; i++) {
+        if (result[i] == c) return;  // avoid duplicates
+    }
+    result[resultIndex++] = c;
+}
+
+void findFirst(char symbol) {
+    if (!isupper(symbol)) {  // if terminal
+        addToResult(symbol);
+        return;
+    }
+
+    for (int i = 0; i < numProductions; i++) {
+        if (productions[i][0] == symbol) {
+            if (islower(productions[i][2]) || productions[i][2] == '$')
+                addToResult(productions[i][2]);
+            else
+                findFirst(productions[i][2]);
+        }
+    }
+}
+
+void findFollow(char symbol) {
+    if (productions[0][0] == symbol)  // start symbol gets '$'
+        addToResult('$');
+
+    for (int i = 0; i < numProductions; i++) {
+        for (int j = 2; productions[i][j] != '\0'; j++) {
+            if (productions[i][j] == symbol) {
+                if (productions[i][j + 1] != '\0')
+                    findFirst(productions[i][j + 1]);
+                else
+                    findFollow(productions[i][0]);
+            }
+        }
+    }
+}

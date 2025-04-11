@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <string.h>
+
+// Function to compute GCD (Greatest Common Divisor)
+long long gcd(long long a, long long b) {
+  while (b != 0) {
+    long long temp = b;
+    b = a % b;
+    a = temp;
+  }
+  return a;
+}
+
+// Simple power function: (base^exp) % mod
+long long power(long long base, long long exp, long long mod) {
+  long long result = 1;
+  for (int i = 0; i < exp; i++) {
+    result = (result * base) % mod;
+  }
+  return result;
+}
+
+int main() {
+  long long p, q, n, phi, e, d;
+  char message[100];
+  long long encrypted[100], decrypted[100];
+
+  // Input prime numbers
+  printf("Enter two prime numbers p and q: ");
+  scanf("%lld %lld", &p, &q);
+
+  n = p * q;
+  phi = (p - 1) * (q - 1);
+
+  // Show all valid e values
+  printf("Possible values for e: ");
+  for (long long i = 3; i < phi; i += 2) {
+    if (gcd(i, phi) == 1)
+      printf("%lld ", i);
+  }
+
+  printf("\nEnter your choice for e: ");
+  scanf("%lld", &e);
+
+  // Compute d (private key)
+  for (d = 1; (d * e) % phi != 1; d++)
+    ;
+  printf("Computed d: %lld\n", d);
+
+  // Input string message
+  printf("Enter message: ");
+  scanf(" %[^\n]", message); // Read string with spaces
+
+  int len = strlen(message);
+
+  // Encrypt each character
+  printf("Encrypted: ");
+  for (int i = 0; i < len; i++) {
+    encrypted[i] = power(message[i], e, n);
+    printf("%lld ", encrypted[i]);
+  }
+  printf("\n");
+
+  // Decrypt each character
+  printf("Decrypted: ");
+  for (int i = 0; i < len; i++) {
+    decrypted[i] = power(encrypted[i], d, n);
+    printf("%c", (char)decrypted[i]);
+  }
+  printf("\n");
+
+  return 0;
+}

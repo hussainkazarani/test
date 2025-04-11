@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+  char text[100], encrypted[100], decrypted[100];
+  char key[26] = "QWERTYUIOPASDFGHJKLZXCVBNM";
+  char revKey[26];
+  int i;
+
+  // Create reverse key for decryption
+  for (i = 0; i < 26; i++)
+    revKey[key[i] - 'A'] = 'A' + i;
+
+  printf("Enter text (in uppercase): ");
+  scanf("%s", text);
+
+  // Encryption
+  for (i = 0; text[i] != '\0'; i++) {
+    if (text[i] >= 'A' && text[i] <= 'Z')
+      encrypted[i] = key[text[i] - 'A'];
+    else
+      encrypted[i] = text[i];
+  }
+  encrypted[i] = '\0';
+  printf("Encrypted text: %s\n", encrypted);
+
+  // Decryption
+  for (i = 0; encrypted[i] != '\0'; i++) {
+    if (encrypted[i] >= 'A' && encrypted[i] <= 'Z')
+      decrypted[i] = revKey[encrypted[i] - 'A'];
+    else
+      decrypted[i] = encrypted[i];
+  }
+  decrypted[i] = '\0';
+  printf("Decrypted text: %s\n", decrypted);
+
+  return 0;
+}

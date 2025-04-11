@@ -1,0 +1,85 @@
+//Server
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+import java.util.Iterator;
+
+public class TCPConcurrentPollServer {
+    public static void main(String[] args) {
+        try {
+            // 1. Create non-blocking server socket
+            ServerSocketChannel server = ServerSocketChannel.open();
+            server.bind(new InetSocketAddress(12345));
+            server.configureBlocking(false);
+
+            // 2. Open selector and register server for accept events
+            Selector selector = Selector.open();
+            server.register(selector, SelectionKey.OP_ACCEPT);
+
+            System.out.println("Server started on port 12345");
+
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+
+            while (true) {
+                selector.select(); // Polling clients (blocking until one is ready)
+
+                Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+                while (keys.hasNext()) {
+                    SelectionKey key = keys.next();
+                    keys.remove();
+
+                    if (key.isAcceptable()) {
+                        // 3. Accept new client connection
+                        SocketChannel client = server.accept();
+                        client.configureBlocking(false);
+                        client.register(selector, SelectionKey.OP_READ);
+                        System.out.println("Client connected.");
+                    }
+
+                    if (key.isReadable()) {
+                        // 4. Handle message from client
+                        SocketChannel client = (SocketChannel) key.channel();
+                        buffer.clear();
+                        int bytesRead = client.read(buffer);
+
+                        if (bytesRead == -1) {
+                            client.close();
+                            System.out.println("Client disconnected.");
+                        } else {
+                            buffer.flip();
+                            client.write(buffer); // Echo the same message
+                        }
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+//Client
+import java.io.*;
+import java.net.Socket;
+
+public class TCPClient {
+    public static void main(String[] args) {
+        try (
+            Socket socket = new Socket("localhost", 12345);
+            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
+        ) {
+            System.out.println("Connected to server. Type messages (type 'exit' to quit):");
+
+            String msg;
+            while (!(msg = userInput.readLine()).equalsIgnoreCase("exit")) {
+                out.println(msg);
+                System.out.println("Server: " + in.readLine());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

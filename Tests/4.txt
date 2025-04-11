@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+  char message[100], key[100], encrypted[100], decrypted[100];
+  int i;
+
+  printf("Enter message (uppercase): ");
+  scanf("%s", message);
+  printf("Enter key (same length, uppercase): ");
+  scanf("%s", key);
+
+  // Encrypt using XOR
+  for (i = 0; message[i] != '\0'; i++)
+    encrypted[i] = ((message[i] - 'A') ^ (key[i] - 'A')) + 'A';
+  encrypted[i] = '\0';
+  printf("Encrypted: %s\n", encrypted);
+
+  // Decrypt using XOR
+  for (i = 0; encrypted[i] != '\0'; i++)
+    decrypted[i] = ((encrypted[i] - 'A') ^ (key[i] - 'A')) + 'A';
+  decrypted[i] = '\0';
+  printf("Decrypted: %s\n", decrypted);
+
+  return 0;
+}

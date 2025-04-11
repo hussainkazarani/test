@@ -1,0 +1,48 @@
+//Server
+package tcp_test;
+
+import java.io.*;
+import java.net.*;
+
+public class Server {
+    public static void main(String[] args) throws IOException {
+        ServerSocket ss = new ServerSocket(6000);
+        System.out.println("Waiting...");
+        Socket server = ss.accept();
+        System.out.println("Connected");
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
+        PrintWriter pw = new PrintWriter(server.getOutputStream(), true);
+
+        String input;
+        while ((input = br.readLine()) != null) {
+            String reversed = new StringBuilder(input).reverse().toString();
+            pw.println(reversed);
+        }
+    }
+}
+//Client
+package tcp_test;
+
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+
+public class Client {
+    public static void main(String[] args) throws IOException {
+        Socket client = new Socket("localhost", 6000);
+        System.out.println("Connected");
+
+        Scanner sc = new Scanner(System.in);
+        BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        PrintWriter pw = new PrintWriter(client.getOutputStream(), true);
+
+        while (true) {
+            System.out.print("Enter sentence: ");
+            String data = sc.nextLine();
+            pw.println(data);
+            String response = br.readLine();
+            System.out.println("Reversed: " + response);
+        }
+    }
+}

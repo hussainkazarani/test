@@ -1,0 +1,41 @@
+#include <stdio.h>
+
+long long power(long long base, long long exp, long long mod) {
+  long long result = 1;
+  for (int i = 0; i < exp; i++) {
+    result = (result * base) % mod;
+  }
+  return result;
+}
+
+int main() {
+  long long p, g, a, b, A, B, secretA, secretB;
+
+  printf("Enter prime number p and primitive root g: ");
+  scanf("%lld %lld", &p, &g);
+
+  printf("Enter private key a for Alice: ");
+  scanf("%lld", &a);
+
+  printf("Enter private key b for Bob: ");
+  scanf("%lld", &b);
+
+  // Alice's public key
+  A = power(g, a, p);
+  printf("Alice's public key A: %lld\n", A);
+
+  // Bob's public key
+  B = power(g, b, p);
+  printf("Bob's public key B: %lld\n", B);
+
+  // Alice computes the shared secret key
+  secretA = power(B, a, p);
+
+  // Bob computes the shared secret key
+  secretB = power(A, b, p);
+
+  printf("Shared key computed by Alice: %lld\n", secretA);
+  printf("Shared key computed by Bob: %lld\n", secretB);
+
+  return 0;
+}

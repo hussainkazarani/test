@@ -1,0 +1,57 @@
+//Server
+package tcp_test;
+
+import java.io.*;
+import java.net.*;
+
+public class Server {
+    public static void main(String[] args) throws IOException {
+        ServerSocket ss = new ServerSocket(6000);
+        System.out.println("Waiting...");
+
+        while (true) {
+            Socket clientSocket = ss.accept();
+            System.out.println("Connected to client");
+            new Thread(() -> handleClient(clientSocket)).start();
+        }
+    }
+
+    static void handleClient(Socket client) {
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            PrintWriter pw = new PrintWriter(client.getOutputStream(), true);
+            String line;
+            while ((line = br.readLine()) != null) {
+                pw.println(line.toUpperCase());
+            }
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+//Client
+package tcp_test;
+
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+
+public class Client {
+    public static void main(String[] args) throws IOException {
+        Socket client = new Socket("localhost", 6000);
+        System.out.println("Connected");
+
+        Scanner sc = new Scanner(System.in);
+        BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        PrintWriter pw = new PrintWriter(client.getOutputStream(), true);
+
+        while (true) {
+            System.out.print("Enter text: ");
+            String data = sc.nextLine();
+            pw.println(data);
+            String response = br.readLine();
+            System.out.println("Uppercase: " + response);
+        }
+    }
+}

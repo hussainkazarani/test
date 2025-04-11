@@ -1,0 +1,53 @@
+//Server
+package tcp_test;
+
+import java.io.*;
+import java.net.*;
+
+public class Server {
+    public static void main(String[] args) throws IOException {
+        ServerSocket ss = new ServerSocket(6000);
+        System.out.println("Waiting...");
+        Socket server = ss.accept();
+        System.out.println("Connected");
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
+        PrintWriter out = new PrintWriter(new FileWriter("received.txt"));
+
+        String line;
+        while ((line = br.readLine()) != null) {
+            out.println(line);
+        }
+
+        out.close();
+        br.close();
+        server.close();
+        ss.close();
+        System.out.println("File received.");
+    }
+}
+//Client
+package tcp_test;
+
+import java.io.*;
+import java.net.*;
+
+public class Client {
+    public static void main(String[] args) throws IOException {
+        Socket client = new Socket("localhost", 6000);
+        System.out.println("Connected");
+
+        BufferedReader fileReader = new BufferedReader(new FileReader("sample.txt"));
+        PrintWriter pw = new PrintWriter(client.getOutputStream(), true);
+
+        String line;
+        while ((line = fileReader.readLine()) != null) {
+            pw.println(line);
+        }
+
+        fileReader.close();
+        pw.close();
+        client.close();
+        System.out.println("File sent.");
+    }
+}

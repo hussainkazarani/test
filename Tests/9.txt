@@ -1,0 +1,67 @@
+#include <stdio.h>
+
+long long power(long long base, long long exp, long long mod) {
+  long long result = 1;
+  base %= mod;
+  while (exp > 0) {
+    if (exp % 2 == 1)
+      result = (result * base) % mod;
+    base = (base * base) % mod;
+    exp /= 2;
+  }
+  return result;
+}
+
+long long modInverse(long long a, long long m) {
+  long long m0 = m, y = 0, x = 1;
+
+  if (m == 1)
+    return 0;
+
+  while (a > 1) {
+    long long q = a / m;
+    long long t = m;
+
+    m = a % m, a = t;
+    t = y;
+
+    y = x - q * y;
+    x = t;
+  }
+
+  if (x < 0)
+    x = x + m0;
+
+  return x;
+}
+
+int main() {
+  long long p, g, x, y, k, m, c1, c2, decrypted;
+
+  printf("Enter prime p and generator g: ");
+  scanf("%lld %lld", &p, &g);
+
+  printf("Enter private key x: ");
+  scanf("%lld", &x);
+
+  y = power(g, x, p); // public key y
+  printf("Public Key y: %lld\n", y);
+
+  printf("Enter message (as number): ");
+  scanf("%lld", &m);
+
+  printf("Enter random key k: ");
+  scanf("%lld", &k);
+
+  c1 = power(g, k, p);
+  c2 = (m * power(y, k, p)) % p;
+
+  printf("Ciphertext: c1 = %lld, c2 = %lld\n", c1, c2);
+
+  long long c1_inverse = modInverse(power(c1, x, p), p);
+  decrypted = (c2 * c1_inverse) % p;
+
+  printf("Decrypted message: %lld\n", decrypted);
+
+  return 0;
+}

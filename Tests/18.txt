@@ -1,0 +1,33 @@
+//Server
+import java.net.*;
+import java.nio.file.*;
+
+class UDPFileServer {
+    public static void main(String[] args) throws Exception {
+        DatagramSocket ds = new DatagramSocket(5000);
+        byte[] buffer = new byte[1024 * 10];
+
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        ds.receive(packet);
+
+        Files.write(Paths.get("received.txt"), packet.getData(), 0, packet.getLength());
+        System.out.println("File received and saved as received.txt");
+
+        ds.close();
+    }
+}
+//Client
+import java.net.*;
+import java.nio.file.*;
+
+class UDPFileClient {
+    public static void main(String[] args) throws Exception {
+        DatagramSocket ds = new DatagramSocket();
+        InetAddress ip = InetAddress.getByName("localhost");
+
+        byte[] fileData = Files.readAllBytes(Paths.get("input.txt"));
+        DatagramPacket packet = new DatagramPacket(fileData, fileData.length, ip, 5000);
+        ds.send(packet);
+        ds.close();
+    }
+}
